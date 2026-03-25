@@ -1,20 +1,26 @@
 grammar gramatica;
 
+r: (ID | INT | IF | ELSE | WHILE | BREAK | RETURN | TRUE | FALSE | ASSING | EQUALS | NOTEQUAL | PLUS | MINUS | MUL | DIV | POW | MAYOR | MENOR | MENOREQUAL | MAYOREQUAL | LPAREN | RPAREN | SEMICOLON | WS | LINE_COMMENT | BLOCK_COMMENT )* ;
 
 INT: 'int' ;
 IF: 'if' ;
 ELSE : 'else' ;
-WHILE: 'while' ;
+WHILE : 'while' ;
+BREAK : 'break' ;
+RETURN : 'return' ;
+TRUE : 'true' ;
+FALSE : 'false' ;
 
 
 //IDENTIFIERS
 ID : [a-zA-Z][a-zA-Z_0-9]+ ;
 
-
 NUMBER: [0-9]+ ;
 
 //OPERADORES
 ASSING : '=' ;
+EQUALS : '==' ;
+NOTEQUAL : '!=' ;
 PLUS : '+' ;
 MINUS : '-' ;
 MUL : '*' ;
@@ -33,9 +39,6 @@ SEMICOLON : ';' ;
 
 //ESPACIOS
 WS : [ \t\r\n]+ -> skip ;
-
-//COMENTARIOS EN LINEA
-LINE_COMMENT: '//' ~[r\n]* -> skip;
-
-//COMENTARIOS EN BLOQUE
-LINE_COMMENT: '/*' .*? '*/' -> skip;
+//COMENTARIOS
+LINE_COMMENT : '//' ~[r\n]* -> skip ;
+BLOCK_COMMENT : '/*' .*? '*/' -> skip ;
