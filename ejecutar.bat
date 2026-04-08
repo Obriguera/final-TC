@@ -16,10 +16,40 @@ if errorlevel 1 (
     exit /b 1
 )
 
-if "%~1"=="" goto stdin
+if /I "%~1"=="--stdin" goto stdin
+if "%~1"=="" goto pedir_archivo
 
 echo Ejecutando con argumentos: %*
 java -cp ".;%ANTLR_JAR%" main %*
+exit /b %errorlevel%
+
+:pedir_archivo
+set "INPUT_FILE="
+set /p INPUT_FILE=Ingresa la ruta del archivo .txt a analizar: 
+
+if "%INPUT_FILE%"=="" (
+    echo [ERROR] No ingresaste una ruta de archivo.
+    exit /b 1
+)
+
+if not exist "%INPUT_FILE%" (
+    echo [ERROR] El archivo no existe: %INPUT_FILE%
+    exit /b 1
+)
+
+for %%I in ("%INPUT_FILE%") do set "EXT=%%~xI"
+if /I not "%EXT%"==".txt" (
+    echo [AVISO] El archivo no tiene extension .txt, se intentara analizar igual.
+)
+
+set "RUN_PARSE="
+set /p RUN_PARSE=Quieres ejecutar tambien el parser? (s/n): 
+
+if /I "%RUN_PARSE%"=="s" (
+    java -cp ".;%ANTLR_JAR%" main "%INPUT_FILE%" --parse
+) else (
+    java -cp ".;%ANTLR_JAR%" main "%INPUT_FILE%"
+)
 exit /b %errorlevel%
 
 :stdin

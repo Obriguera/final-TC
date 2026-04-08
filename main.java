@@ -20,7 +20,6 @@ public class main {
 
 			printTokens(tokens, lexer);
 
-			// Ejecuta parser si se pasa --parse como argumento.
 			if (contains(args, "--parse")) {
 				runParser(tokens);
 			}

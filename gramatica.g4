@@ -1,6 +1,5 @@
 grammar gramatica;
 
-// Regla de entrada minima para consumir una secuencia de tokens.
 r: token* EOF;
 
 token
@@ -13,7 +12,9 @@ token
 	| TRUE
 	| FALSE
 	| ID
+	| FLOAT_NUMBER
 	| NUMBER
+	| CHAR_LITERAL
 	| EQUAL
 	| ASSIGN
 	| NOT_EQUAL
@@ -21,14 +22,21 @@ token
 	| MINUS
 	| MUL
 	| DIV
+	| MOD
 	| POW
 	| MAYOREQUAL
 	| MENOREQUAL
 	| MAYOR
 	| MENOR
+	| DOT
 	| LPAREN
 	| RPAREN
 	| SEMICOLON
+    | LBRACKET   
+    | RBRACKET   
+    | LBRACE     
+    | RBRACE
+    | COMMA
 	;
 
 INT        : 'int' ;
@@ -40,11 +48,13 @@ RETURN     : 'return' ;
 TRUE       : 'true' ;
 FALSE      : 'false' ;
 
-// IDENTIFICADORES
-ID         : [a-zA-Z] [a-zA-Z_0-9]* ;
+//IDENTIFICADORES
+ID         : [a-zA-Z_] [a-zA-Z_0-9]* ;
+FLOAT_NUMBER : [0-9]+ '.' [0-9]+ ;
 NUMBER     : [0-9]+ ;
+CHAR_LITERAL : '\'' ( '\\' . | ~['\\\r\n] ) '\'' ;
 
-// OPERADORES
+//OPERADORES
 EQUAL      : '==' ;
 ASSIGN     : '=' ;
 NOT_EQUAL  : '!=' ;
@@ -52,21 +62,28 @@ PLUS       : '+' ;
 MINUS      : '-' ;
 MUL        : '*' ;
 DIV        : '/' ;
+MOD        : '%' ;
 POW        : '^' ;
 MAYOREQUAL : '>=' ;
 MENOREQUAL : '<=' ;
 MAYOR      : '>' ;
 MENOR      : '<' ;
+DOT        : '.' ;
 
-// SEPARADORES
+//SEPARADORES
 LPAREN     : '(' ;
 RPAREN     : ')' ;
+LBRACKET   : '[' ;
+RBRACKET   : ']' ;
+LBRACE     : '{' ;
+RBRACE     : '}' ;
 SEMICOLON  : ';' ;
+COMMA      : ',' ;
 
-// ESPACIOS Y COMENTARIOS
+//ESPACIOS Y COMENTARIOS
 WS           : [ \t\r\n]+ -> skip ;
 LINE_COMMENT : '//' ~[\r\n]* -> skip ;
 BLOCK_COMMENT: '/*' .*? '*/' -> skip ;
 
-// Captura cualquier caracter no reconocido para reportar errores lexicos.
+//MANEJO DE ERRORES
 ERROR_CHAR : . ;

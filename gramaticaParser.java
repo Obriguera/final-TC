@@ -17,9 +17,11 @@ public class gramaticaParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		INT=1, IF=2, ELSE=3, WHILE=4, BREAK=5, RETURN=6, TRUE=7, FALSE=8, ID=9, 
-		NUMBER=10, EQUAL=11, ASSIGN=12, NOT_EQUAL=13, PLUS=14, MINUS=15, MUL=16, 
-		DIV=17, POW=18, MAYOREQUAL=19, MENOREQUAL=20, MAYOR=21, MENOR=22, LPAREN=23, 
-		RPAREN=24, SEMICOLON=25, WS=26, LINE_COMMENT=27, BLOCK_COMMENT=28, ERROR_CHAR=29;
+		FLOAT_NUMBER=10, NUMBER=11, CHAR_LITERAL=12, EQUAL=13, ASSIGN=14, NOT_EQUAL=15, 
+		PLUS=16, MINUS=17, MUL=18, DIV=19, MOD=20, POW=21, MAYOREQUAL=22, MENOREQUAL=23, 
+		MAYOR=24, MENOR=25, DOT=26, LPAREN=27, RPAREN=28, LBRACKET=29, RBRACKET=30, 
+		LBRACE=31, RBRACE=32, SEMICOLON=33, COMMA=34, WS=35, LINE_COMMENT=36, 
+		BLOCK_COMMENT=37, ERROR_CHAR=38;
 	public static final int
 		RULE_r = 0, RULE_token = 1;
 	private static String[] makeRuleNames() {
@@ -32,17 +34,20 @@ public class gramaticaParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'int'", "'if'", "'else'", "'while'", "'break'", "'return'", "'true'", 
-			"'false'", null, null, "'=='", "'='", "'!='", "'+'", "'-'", "'*'", "'/'", 
-			"'^'", "'>='", "'<='", "'>'", "'<'", "'('", "')'", "';'"
+			"'false'", null, null, null, null, "'=='", "'='", "'!='", "'+'", "'-'", 
+			"'*'", "'/'", "'%'", "'^'", "'>='", "'<='", "'>'", "'<'", "'.'", "'('", 
+			"')'", "'['", "']'", "'{'", "'}'", "';'", "','"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "INT", "IF", "ELSE", "WHILE", "BREAK", "RETURN", "TRUE", "FALSE", 
-			"ID", "NUMBER", "EQUAL", "ASSIGN", "NOT_EQUAL", "PLUS", "MINUS", "MUL", 
-			"DIV", "POW", "MAYOREQUAL", "MENOREQUAL", "MAYOR", "MENOR", "LPAREN", 
-			"RPAREN", "SEMICOLON", "WS", "LINE_COMMENT", "BLOCK_COMMENT", "ERROR_CHAR"
+			"ID", "FLOAT_NUMBER", "NUMBER", "CHAR_LITERAL", "EQUAL", "ASSIGN", "NOT_EQUAL", 
+			"PLUS", "MINUS", "MUL", "DIV", "MOD", "POW", "MAYOREQUAL", "MENOREQUAL", 
+			"MAYOR", "MENOR", "DOT", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", 
+			"LBRACE", "RBRACE", "SEMICOLON", "COMMA", "WS", "LINE_COMMENT", "BLOCK_COMMENT", 
+			"ERROR_CHAR"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -134,7 +139,7 @@ public class gramaticaParser extends Parser {
 			setState(7);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 67108862L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 34359738366L) != 0)) {
 				{
 				{
 				setState(4);
@@ -171,7 +176,9 @@ public class gramaticaParser extends Parser {
 		public TerminalNode TRUE() { return getToken(gramaticaParser.TRUE, 0); }
 		public TerminalNode FALSE() { return getToken(gramaticaParser.FALSE, 0); }
 		public TerminalNode ID() { return getToken(gramaticaParser.ID, 0); }
+		public TerminalNode FLOAT_NUMBER() { return getToken(gramaticaParser.FLOAT_NUMBER, 0); }
 		public TerminalNode NUMBER() { return getToken(gramaticaParser.NUMBER, 0); }
+		public TerminalNode CHAR_LITERAL() { return getToken(gramaticaParser.CHAR_LITERAL, 0); }
 		public TerminalNode EQUAL() { return getToken(gramaticaParser.EQUAL, 0); }
 		public TerminalNode ASSIGN() { return getToken(gramaticaParser.ASSIGN, 0); }
 		public TerminalNode NOT_EQUAL() { return getToken(gramaticaParser.NOT_EQUAL, 0); }
@@ -179,14 +186,21 @@ public class gramaticaParser extends Parser {
 		public TerminalNode MINUS() { return getToken(gramaticaParser.MINUS, 0); }
 		public TerminalNode MUL() { return getToken(gramaticaParser.MUL, 0); }
 		public TerminalNode DIV() { return getToken(gramaticaParser.DIV, 0); }
+		public TerminalNode MOD() { return getToken(gramaticaParser.MOD, 0); }
 		public TerminalNode POW() { return getToken(gramaticaParser.POW, 0); }
 		public TerminalNode MAYOREQUAL() { return getToken(gramaticaParser.MAYOREQUAL, 0); }
 		public TerminalNode MENOREQUAL() { return getToken(gramaticaParser.MENOREQUAL, 0); }
 		public TerminalNode MAYOR() { return getToken(gramaticaParser.MAYOR, 0); }
 		public TerminalNode MENOR() { return getToken(gramaticaParser.MENOR, 0); }
+		public TerminalNode DOT() { return getToken(gramaticaParser.DOT, 0); }
 		public TerminalNode LPAREN() { return getToken(gramaticaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(gramaticaParser.RPAREN, 0); }
 		public TerminalNode SEMICOLON() { return getToken(gramaticaParser.SEMICOLON, 0); }
+		public TerminalNode LBRACKET() { return getToken(gramaticaParser.LBRACKET, 0); }
+		public TerminalNode RBRACKET() { return getToken(gramaticaParser.RBRACKET, 0); }
+		public TerminalNode LBRACE() { return getToken(gramaticaParser.LBRACE, 0); }
+		public TerminalNode RBRACE() { return getToken(gramaticaParser.RBRACE, 0); }
+		public TerminalNode COMMA() { return getToken(gramaticaParser.COMMA, 0); }
 		public TokenContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -215,7 +229,7 @@ public class gramaticaParser extends Parser {
 			{
 			setState(12);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 67108862L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 34359738366L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -237,16 +251,16 @@ public class gramaticaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001\u001d\u000f\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001"+
-		"\u0001\u0000\u0005\u0000\u0006\b\u0000\n\u0000\f\u0000\t\t\u0000\u0001"+
-		"\u0000\u0001\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0000\u0000\u0002"+
-		"\u0000\u0002\u0000\u0001\u0001\u0000\u0001\u0019\r\u0000\u0007\u0001\u0000"+
-		"\u0000\u0000\u0002\f\u0001\u0000\u0000\u0000\u0004\u0006\u0003\u0002\u0001"+
-		"\u0000\u0005\u0004\u0001\u0000\u0000\u0000\u0006\t\u0001\u0000\u0000\u0000"+
-		"\u0007\u0005\u0001\u0000\u0000\u0000\u0007\b\u0001\u0000\u0000\u0000\b"+
-		"\n\u0001\u0000\u0000\u0000\t\u0007\u0001\u0000\u0000\u0000\n\u000b\u0005"+
-		"\u0000\u0000\u0001\u000b\u0001\u0001\u0000\u0000\u0000\f\r\u0007\u0000"+
-		"\u0000\u0000\r\u0003\u0001\u0000\u0000\u0000\u0001\u0007";
+		"\u0004\u0001&\u000f\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0001"+
+		"\u0000\u0005\u0000\u0006\b\u0000\n\u0000\f\u0000\t\t\u0000\u0001\u0000"+
+		"\u0001\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0000\u0000\u0002\u0000"+
+		"\u0002\u0000\u0001\u0001\u0000\u0001\"\r\u0000\u0007\u0001\u0000\u0000"+
+		"\u0000\u0002\f\u0001\u0000\u0000\u0000\u0004\u0006\u0003\u0002\u0001\u0000"+
+		"\u0005\u0004\u0001\u0000\u0000\u0000\u0006\t\u0001\u0000\u0000\u0000\u0007"+
+		"\u0005\u0001\u0000\u0000\u0000\u0007\b\u0001\u0000\u0000\u0000\b\n\u0001"+
+		"\u0000\u0000\u0000\t\u0007\u0001\u0000\u0000\u0000\n\u000b\u0005\u0000"+
+		"\u0000\u0001\u000b\u0001\u0001\u0000\u0000\u0000\f\r\u0007\u0000\u0000"+
+		"\u0000\r\u0003\u0001\u0000\u0000\u0000\u0001\u0007";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
