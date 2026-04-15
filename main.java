@@ -8,9 +8,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-public class Main {
+public class main {
 
-	public static void Main(String[] args) {
+	public static void main(String[] args) {
 		try {
 			String inputText = readInput(args);
 
