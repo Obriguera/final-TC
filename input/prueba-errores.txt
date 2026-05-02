@@ -1,0 +1,42 @@
+// Archivo con múltiples errores semánticos para probar el Visitor
+
+int global;
+int global; // Error: Variable duplicada
+
+void miFuncion() {
+    int local;
+    local = 10;
+}
+
+int main() {
+    int a;
+    double b;
+    bool c;
+
+    a = 10;
+    b = 3.14;
+    c = true;
+
+    // Error: Variable no declarada
+    x = 100;
+
+    // Error: Tipos incompatibles
+    a = 3.14; 
+    c = 10;
+
+    // Error: No se puede asignar a una función
+    miFuncion = 20;
+
+    // Error: Función no declarada
+    otraFuncion();
+
+    // Error: Condición de if no es bool
+    if (a) {
+        int d;
+    }
+
+    // Error: Variable local filtrada (d fue definida en el if)
+    a = d;
+
+    return 0;
+}
