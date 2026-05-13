@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         try {
-            String path = args.length > 0 ? args[0] : "input/prueba-errores.txt";
+            String path = args.length > 0 ? args[0] : "input/prueba.txt";
             CharStream input = CharStreams.fromPath(Paths.get(path));
 
             // 1. Configurar Lexer y su manejo de errores
@@ -56,10 +56,13 @@ public class Main {
                 Semantico as = new Semantico();
                 as.visit(tree);
 
+                // En el método main, después del análisis semántico:
                 if (as.getErrores() == 0) {
-                    System.out.println("Análisis semántico completado con éxito.");
-                } else {
-                    System.err.println("Abortando: Se encontraron " + as.getErrores() + " errores semánticos.");
+                    System.out.println("Análisis semántico exitoso. Generando TAC...");
+                    GeneradorTAC tac = new GeneradorTAC();
+                    tac.visit(tree);
+                    System.out.println("\n--- CÓDIGO INTERMEDIO ---");
+                    tac.imprimirCodigo();
                 }
             } else {
                 int totales = errorListenerLexer.getContadorErrores() + errorListenerParser.getContadorErrores();
