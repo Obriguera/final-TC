@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="antlr-4.13.2-complete" level="project" />
+    <orderEntry type="library" name="github.haifengl.smile.core" level="project" />
   </component>
 </module>

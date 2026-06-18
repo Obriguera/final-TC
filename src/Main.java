@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import org.antlr.v4.gui.TreeViewer;
 import javax.swing.JFrame;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -33,10 +34,10 @@ public class Main {
             JFrame frame = new JFrame("Visualizador de Árbol Sintáctico - Octavio Briguera");
             TreeViewer viewer = new TreeViewer(Arrays.asList(parser.getRuleNames()), tree);
 
-// 1. Aumentamos la escala para que el texto sea legible
+            // 1. Aumentamos la escala para que el texto sea legible
             viewer.setScale(1.2);
 
-// 2. Metemos el viewer adentro de un JScrollPane para poder navegarlo
+            // 2. Metemos el viewer adentro de un JScrollPane para poder navegarlo
             javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(viewer);
             scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -44,7 +45,7 @@ public class Main {
             frame.add(scrollPane);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-// 3. Definimos un tamaño de ventana inicial cómodo
+            // 3. Definimos un tamaño de ventana inicial cómodo
             frame.setSize(1200, 800);
             frame.setVisible(true);
             // ------------------------------------------
@@ -56,13 +57,27 @@ public class Main {
                 Semantico as = new Semantico();
                 as.visit(tree);
 
-                // En el método main, después del análisis semántico:
                 if (as.getErrores() == 0) {
                     System.out.println("Análisis semántico exitoso. Generando TAC...");
                     GeneradorTAC tac = new GeneradorTAC();
                     tac.visit(tree);
-                    System.out.println("\n--- CÓDIGO INTERMEDIO ---");
-                    tac.imprimirCodigo();
+
+                    // --- CORRECCIÓN PUNTOS 1, 2, 3 ---
+                    // 1. Inyectamos la tabla para que el optimizador sepa qué es código muerto
+                    Optimizador optimizador = new Optimizador(as.getTabla());
+
+                    List<InstruccionTAC> codigo = tac.getCodigo();
+
+                    // 2. Aplicamos pipeline de optimización
+                    codigo = optimizador.optimizar(codigo);           // Constant Folding
+                    codigo = optimizador.eliminarCodigoMuerto(codigo); // Dead Code
+
+                    // 3. Generación final de ensamblador
+                    System.out.println("\n--- CÓDIGO INTERMEDIO FINAL ---");
+                    for (InstruccionTAC i : codigo) System.out.println(i);
+
+                    GeneradorEnsamblador asmGen = new GeneradorEnsamblador();
+                    asmGen.generar(codigo, "output.asm");
                 }
             } else {
                 int totales = errorListenerLexer.getContadorErrores() + errorListenerParser.getContadorErrores();

@@ -35,6 +35,10 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
     private String newTemp() { return "t" + (tempCount++); }
     private String newLabel() { return "L" + (labelCount++); }
 
+    public List<InstruccionTAC> getCodigo() {
+        return this.codigo;
+    }
+
     public void imprimirCodigo() {
         System.out.println("\n--- CÓDIGO INTERMEDIO ---");
         for (InstruccionTAC i : codigo) System.out.println(i);

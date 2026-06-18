@@ -9,6 +9,10 @@ public class Semantico extends gramaticaBaseVisitor<Object> {
 
     public int getErrores() { return errores; }
 
+    public TablaSimbolos getTabla() {
+        return this.tabla;
+    }
+
     private void reportarError(Token t, String mensaje) {
         System.err.println("Error Semántico [" + t.getLine() + ":" + t.getCharPositionInLine() + "]: " + mensaje);
         errores++;

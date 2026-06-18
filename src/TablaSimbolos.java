@@ -20,6 +20,7 @@ class Simbolo {
 }
 
 public class TablaSimbolos {
+
     private Stack<Map<String, Simbolo>> scopes = new Stack<>();
 
     public TablaSimbolos() {
@@ -60,6 +61,15 @@ public class TablaSimbolos {
                 Simbolo s = scopes.get(i).get(nombre);
                 s.usado = true; // Marcamos que la variable "sirvió para algo"
                 return s;
+            }
+        }
+        return null;
+    }
+
+    public Simbolo buscarSinMarcar(String nombre) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            if (scopes.get(i).containsKey(nombre)) {
+                return scopes.get(i).get(nombre);
             }
         }
         return null;
