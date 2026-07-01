@@ -1,20 +1,40 @@
 import java.util.*;
 
+
+/*
+Optimizador --> limpia, reduce y hace que el código intermedio sea lo más rápido y
+                eficiente posible
+antes de pasarlo a lenguaje ensamblador
+*/
 public class Optimizador {
 
-    private TablaSimbolos tabla;
 
-    private AgenteIA agenteIA;
+    private TablaSimbolos tabla; //Para consultar información histórica de las variables
+    private AgenteIA agenteIA; // Instancia y entrena automaticamente el modelo
 
     public Optimizador(TablaSimbolos tabla) {
         this.tabla = tabla;
         this.agenteIA = new AgenteIA();
     }
 
+
+    /*
+   Aplica:
+            Propagación de Constantes:  Utiliza un diccionario para recordar el valor literal
+                de una variable. Si lee t0=5 lo guarda. Si en la siguiente linea lee 't1 = t0 +2',
+                reemplzada t0 por 5.
+            Constant Folding: Una vez propagados los valores, si detecta una instruccion matematica
+                con dos numeros puros, le pide al metodo auxiliar 'aplicarOperacion' que resuelva la matematica
+                en tiempo de compilacion. La instruccion se transforma en una simple asignacion
+            Simplificación Algebraica: Aplica reglas matemáticas neutrales. Si detecta operaciones como
+                x = y + 0 o x = 0 + y, elimina la suma y la convierte en asignacion directa.
+    */
     public List<InstruccionTAC> optimizar(List<InstruccionTAC> codigo) {
         List<InstruccionTAC> optimizado = new ArrayList<>(codigo);
         boolean cambio;
 
+        //Aplica técnicas de análisis de flujo de datos. Usa el do-while para aplicar las
+        //Optimizaciones en cascada.
         do {
             cambio = false;
             // Mapa para Propagación de Constantes (Soluciona Bug 3)
@@ -59,7 +79,19 @@ public class Optimizador {
         return optimizado;
     }
 
-    // Soluciona Bugs 1 y 2 analizando el flujo de vida de las variables
+    /*
+    Delega la limpieza al AgenteIA en dos fases:
+        Fase 1 (Extraccion de caracteristicas): El optimizador escanea toda la lista de instrucciones TAC.
+        Por cada instruccion, anota en dos diccionarios el comportamiento de cada variable (asignaciones y lecturas).
+        Si ve X = ..., suma una signación a X, si ve ... = x + 1, suma una lectura a X
+
+        Fase 2 (Inferencia y limpieza): Vuelve a escanear el código. Cuando encuentra una instrucción que asigna
+         asigna un valor a una variable (que no sea una llamada a funcion, ya que estas pueden tener efectos secundarios),
+         extrae los contadores de asignaciones y lecturas de esa variable y se los pasa a
+         agenteIA.esCodigoMuerto(). Si la IA devuelve 'true' ejecuta un continue,
+         lo que la alimina de la lista final 'optimizado'
+    */
+
     public List<InstruccionTAC> eliminarCodigoMuerto(List<InstruccionTAC> codigo) {
         List<InstruccionTAC> optimizado = new ArrayList<>();
 
@@ -112,6 +144,9 @@ public class Optimizador {
         return optimizado;
     }
 
+
+    // Utiliza una expresion regular para validar de forma segura si el string es un entero,
+    // antes de intentar convertirlo, previniendo caidas del compilador
     private boolean esNumero(String s) {
         if (s == null || s.isEmpty()) return false;
         return s.matches("-?\\d+");
@@ -121,6 +156,8 @@ public class Optimizador {
         return op != null && (op.equals("+") || op.equals("-") || op.equals("*") || op.equals("/"));
     }
 
+
+    /* Ejecuta aritmetica real. Evita la division por 0. Falla de manera segura */
     private int aplicarOperacion(int a, String op, int b) {
         if (op.equals("/") && b == 0) {
             System.err.println("\u001B[31m[ERROR CRÍTICO] División por cero detectada durante Constant Folding.\u001B[0m");

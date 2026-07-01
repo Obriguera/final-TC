@@ -2,9 +2,11 @@ import org.antlr.v4.runtime.Token;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// Utiliza el visitor para recorrer nodoXnodo del arbol sintáctico (AST)
 public class Semantico extends gramaticaBaseVisitor<Object> {
-    private TablaSimbolos tabla = new TablaSimbolos();
-    private int errores = 0;
+    private TablaSimbolos tabla = new TablaSimbolos(); // Instancia de tablaSimbolos (guardan y consultan las variables)
+    private int errores = 0; //Si es mayor a 0, el main detiene la ejecución y no genera el TAC
     private String funcionActualTipo = null;
 
     public int getErrores() { return errores; }
@@ -18,9 +20,37 @@ public class Semantico extends gramaticaBaseVisitor<Object> {
         errores++;
     }
 
-    /**
-     * Valida si un bloque garantiza un retorno (útil para funciones no void).
-     */
+
+    // Evalua si se puede guardar el valor en una variable
+    // Permite 'promociones' (guardar un INT en un DOUBLE)
+    private void checkTipos(String esperado, String encontrado, Token t) {
+        if (encontrado == null || encontrado.equals("error") || esperado == null) {
+            return;
+        }
+        if (!esperado.equals(encontrado)) {
+            // Permitir promociones automáticas (int -> float/double y float -> double)
+            if ((esperado.equals("double") || esperado.equals("float")) && encontrado.equals("int")) {
+                return;
+            }
+            if (esperado.equals("double") && encontrado.equals("float")) {
+                return;
+            }
+            reportarError(t, "Tipos incompatibles. Se esperaba '" + esperado + "' pero se encontró '" + encontrado + "'.");
+        }
+    }
+
+    // Deduce de que tipo es el resultado de una suma o multiplicación
+    private String resultType(String t1, String t2) {
+        if (t1 == null || t2 == null || t1.equals("error") || t2.equals("error")) return "error";
+        if (t1.equals("double") || t2.equals("double")) return "double";
+        if (t1.equals("float") || t2.equals("float")) return "float";
+        if (t1.equals("int") && t2.equals("int")) return "int";
+        return "error"; 
+    }
+
+
+
+    // Valida si un bloque garantiza un retorno (útil para funciones no void).
     private boolean garantizaReturn(gramaticaParser.BloqueContext ctx) {
         if (ctx == null) return false;
         for (gramaticaParser.SentenciaContext s : ctx.sentencia()) {
@@ -39,34 +69,15 @@ public class Semantico extends gramaticaBaseVisitor<Object> {
         return false;
     }
 
-    private void checkTipos(String esperado, String encontrado, Token t) {
-        if (encontrado == null || encontrado.equals("error") || esperado == null) {
-            return;
-        }
-        if (!esperado.equals(encontrado)) {
-            // Permitir promociones automáticas (int -> float/double y float -> double)
-            if ((esperado.equals("double") || esperado.equals("float")) && encontrado.equals("int")) {
-                return;
-            }
-            if (esperado.equals("double") && encontrado.equals("float")) {
-                return;
-            }
-            reportarError(t, "Tipos incompatibles. Se esperaba '" + esperado + "' pero se encontró '" + encontrado + "'.");
-        }
-    }
-
-    private String resultType(String t1, String t2) {
-        if (t1 == null || t2 == null || t1.equals("error") || t2.equals("error")) return "error";
-        if (t1.equals("double") || t2.equals("double")) return "double";
-        if (t1.equals("float") || t2.equals("float")) return "float";
-        if (t1.equals("int") && t2.equals("int")) return "int";
-        return "error"; 
-    }
 
     // ==========================================
     // DECLARACIONES
     // ==========================================
+    // Se ejecutan cuando árbol pasa por lineas de código donde nacen cosas nuevas
 
+
+    //Toman el nombre y tipo de la nueva variable o arreglo. Si ya existe, devuelve false
+    //y lanzan un error
     @Override
     public Object visitDeclVar(gramaticaParser.DeclVarContext ctx) {
         String tipo = ctx.tipo().getText();
@@ -263,6 +274,8 @@ public class Semantico extends gramaticaBaseVisitor<Object> {
     // ==========================================
     // EXPRESIONES Y OPERADORES
     // ==========================================
+
+    //Toman ambos operandos y verifican que sean compatibles, si no lo son devuelven un error
 
     @Override
     public Object visitMulDivExpr(gramaticaParser.MulDivExprContext ctx) {

@@ -2,6 +2,12 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.io.IOException;
 
+
+/*
+Toma el código intermedio (TAC) que ya está limpio y optimizado, lo traduce a pseudoEnsamblador
+Además, se encarga de guardar este resultado en un archivo .asm
+*/
+
 public class GeneradorEnsamblador {
 
     public void generar(List<InstruccionTAC> codigo, String rutaSalida) {
@@ -17,6 +23,7 @@ public class GeneradorEnsamblador {
                 }
 
                 String instruccionASM = "";
+                //Mapea estructuras del TAC a comandos especificos
                 switch (i.op) {
                     case "=" -> instruccionASM = "MOV " + i.res + ", " + i.arg1;
                     case "goto" -> instruccionASM = "JMP " + i.res;
@@ -63,6 +70,7 @@ public class GeneradorEnsamblador {
         }
     }
 
+    //Metodos auxiliares para limpiar el switch principal
     private String traducirOp(String op) {
         return switch (op) {
             case "+" -> "ADD";

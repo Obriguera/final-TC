@@ -1,5 +1,9 @@
 import java.util.*;
 
+
+/*
+Actua como 'molde'.
+*/
 class InstruccionTAC {
     String op, arg1, arg2, res;
     InstruccionTAC(String op, String a1, String a2, String r) {
@@ -27,6 +31,9 @@ class InstruccionTAC {
     }
 }
 
+/*
+Trabaja con VariablesTemporales y EtiquetasDeSalto
+*/
 public class GeneradorTAC extends gramaticaBaseVisitor<String> {
     private List<InstruccionTAC> codigo = new ArrayList<>();
     private int tempCount = 0;
@@ -51,6 +58,19 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
         return ctx.ID().getText();
     }
 
+
+    /*
+     visitAddSubExpr,visitMulDivExpr y visitCompExpr
+
+     Visitan el lado izquierdo y derecho de la operacion
+
+     Piden un temporal nuevo
+
+     Crean la instruccion TAC y la guardan en la lista
+
+     Retornan el nombre del temporal tX. Si este está dentro de una operación más grande,
+     el nodo padre recibe el temporal y puede seguir operando
+    */
     @Override
     public String visitAddSubExpr(gramaticaParser.AddSubExprContext ctx) {
         String l = visit(ctx.expr(0));
@@ -67,6 +87,17 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
         String t = newTemp();
         codigo.add(new InstruccionTAC(ctx.op.getText(), l, r, t));
         return t;
+    }
+
+    // ------------------------------------------------------------------------------
+
+    @Override
+    public String visitCompExpr(gramaticaParser.CompExprContext ctx) {
+        String left = visit(ctx.expr(0));
+        String right = visit(ctx.expr(1));
+        String temp = newTemp();
+        codigo.add(new InstruccionTAC(ctx.op.getText(), left, right, temp));
+        return temp;
     }
 
     @Override
@@ -103,14 +134,17 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
     @Override public String visitBoolExpr(gramaticaParser.BoolExprContext ctx) { return ctx.getText(); }
     @Override public String visitParensExpr(gramaticaParser.ParensExprContext ctx) { return visit(ctx.expr()); }
 
-    @Override
-    public String visitArrayAccessExpr(gramaticaParser.ArrayAccessExprContext ctx) {
-        String idx = visit(ctx.expr());
-        String t = newTemp();
-        codigo.add(new InstruccionTAC("[]", ctx.ID().getText(), idx, t));
-        return t;
-    }
+    /*
+    Llamar a una función en TAC requiere pasos secuenciales:
 
+    Visita cada argumento de la función y guardo sus valores/temporales
+
+    Por cada uno, genero una instrucción PARAM (que es un PUSH en el ensamblador)
+
+    Genero un temporal para atrapar el resultado
+
+    Lanzo la instrucción 'call nombreFuncion, cantidadArgumentos'
+    */
     @Override
     public String visitCallExpr(gramaticaParser.CallExprContext ctx) {
         int cantidadArgumentos = 0;
@@ -139,15 +173,6 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
         codigo.add(new InstruccionTAC("call", nombreFuncion, String.valueOf(cantidadArgumentos), t));
 
         return t;
-    }
-
-    @Override
-    public String visitCompExpr(gramaticaParser.CompExprContext ctx) {
-        String left = visit(ctx.expr(0));
-        String right = visit(ctx.expr(1));
-        String temp = newTemp();
-        codigo.add(new InstruccionTAC(ctx.op.getText(), left, right, temp));
-        return temp;
     }
 
     ///
@@ -242,6 +267,8 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
         return null;
     }
 
+
+    //Genera la operación []= que le dice donde escribir correctamente
     @Override
     public String visitAsignacionArray(gramaticaParser.AsignacionArrayContext ctx) {
         String idx = visit(ctx.expr(0)); // Posición/Índice
@@ -251,5 +278,14 @@ public class GeneradorTAC extends gramaticaBaseVisitor<String> {
         // Estructura: op="[]=", arg1=valor, arg2=índice, res=identificador_arreglo
         codigo.add(new InstruccionTAC("[]=", val, idx, id));
         return id;
+    }
+
+    // Genera la operacion [] para leer en una posición en particular
+    @Override
+    public String visitArrayAccessExpr(gramaticaParser.ArrayAccessExprContext ctx) {
+        String idx = visit(ctx.expr());
+        String t = newTemp();
+        codigo.add(new InstruccionTAC("[]", ctx.ID().getText(), idx, t));
+        return t;
     }
 }
