@@ -1,53 +1,39 @@
-# C-Like Compiler: Lexical, Syntactic & Semantic Analysis
+# C-Like Compiler with ML-Driven Optimization
 
-This project is a functional compiler for a C-like programming language, developed as part of the **Compiler Techniques** final examination. It utilizes **ANTLR 4.13.2** to perform a complete analysis pipeline, from raw source code to semantic validation.
+This project is a complete, end-to-end compiler for a C-like programming language, developed as part of the **Compiler Techniques** final exam at Universidad Blas Pascal. It utilizes **ANTLR 4.13.2** for the frontend pipeline and integrates a **Machine Learning Agent** (using the Smile library) to perform predictive code optimization before generating x86 pseudo-assembly.
 
-## 🚀 Key Features
+## 🥽 Key Features
 
-- **Lexical & Syntactic Analysis**: Full grammar implementation supporting functions, control structures (`if`, `while`, `for`), arrays, and multiple data types.
-- **Semantic Analysis**: Implementation of a **Visitor Pattern** to bridge the gap between structure and meaning.
+- **Robust Frontend**: Lexical, syntactic, and semantic analysis with custom error interception to prevent AST corruption.
 - **Advanced Symbol Table**: 
-    - **Scope Management**: Uses a Stack of HashMaps to handle global and local scopes.
-    - **Shadowing Support**: Correctly resolves variable names based on the innermost active scope.
-    - **Declaration Validation**: Detects duplicate declarations and undeclared variables.
-- **Syntax-Directed Translation (SDT)**: Leverages synthesized attributes to propagate information up the parse tree.
+    - **Scope Management**: Uses a Stack of HashMaps to handle global and local scopes seamlessly.
+    - **Shadowing & Validation**: Resolves variable names based on the innermost active scope, prevents duplicate declarations, and warns about unused variables.
+- **Intermediate Representation (TAC)**: Translates the complex Abstract Syntax Tree (AST) into linear Three-Address Code, utilizing temporary variables (`tX`) and jump labels (`Lxx`) to flatten control flow.
+- **Dual-Pass Optimization Engine**:
+    - **Algorithmic**: Implements static *Data Flow Analysis* for Constant Folding, Constant Propagation, and Algebraic Simplification.
+    - **Predictive (AI)**: Integrates a **Decision Tree Classifier (CART)**. The optimizer acts as a feature extractor (counting assignments and reads), and the AI infers whether a variable is "dead code", intelligently pruning the TAC list to reduce binary size.
+- **Backend ASM Generation**: Translates the optimized TAC into a register-memory pseudo-assembly architecture (`output.asm`), strictly handling calling conventions (`PUSH`, `CALL`, `EAX` for returns) and array offset memory management.
 
 ## 🛠 Tech Stack
 
-- **Language**: Java
-- **Tool**: [ANTLR 4.13.2](https://www.antlr.org/)
+- **Language**: Java (JDK 21+)
+- **Parser Generator**: [ANTLR 4.13.2](https://www.antlr.org/)
+- **Machine Learning**: [Smile (Statistical Machine Intelligence and Learning Engine) v2.6.0](https://haifengl.github.io/)
 - **IDE**: IntelliJ IDEA
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
-* `src/gramatica.g4`: The ANTLR grammar definition (Lexer + Parser).
-* `src/Main.java`: The entry point that orchestrates the loading, parsing, and visiting of the source code.
-* `src/Semantico.java`: Custom Visitor implementation for semantic checks.
-* `src/TablaSimbolos.java`: Logic for managing symbol scopes and life cycles.
-* `input/`: Directory containing test files:
-    * `ejemplo-correcto.txt`: Demonstrates valid language constructs.
-    * `ejemplo-multiples-errores.txt`: Used to test the robustness of the semantic error reporting.
+* `gramatica.g4`: ANTLR grammar definition (Lexer + Parser).
+* `Main.java`: The orchestrator that connects the pipeline phases.
+* `ManejadorErrores.java`: Custom error listener to halt compilation on syntax faults.
+* `Semantico.java` & `TablaSimbolos.java`: Semantic validation, scope tracking, and strict type-checking via the Visitor pattern.
+* `GeneradorTAC.java`: Flattens the AST into Three-Address Code instructions.
+* `Optimizador.java` & `AgenteIA.java`: The optimization core featuring algebraic reduction and the Machine Learning classifier.
+* `GeneradorEnsamblador.java`: The backend translator that outputs the final `.asm` file.
 
 ## ⚙️ Setup & Execution
 
 ### Prerequisites
-- Java JDK 11 or higher.
-- `antlr-4.13.2-complete.jar` added to the project libraries.
-
-### Running in IntelliJ IDEA
-1. Install the **ANTLR v4 grammar plugin**.
-2. Right-click `gramatica.g4` and select **Generate ANTLR Recognizer**.
-3. Ensure the generated folder (`gen`) is marked as **Generated Sources Root**.
-4. Run `Main.java` and provide the path to your input file.
-
-## 📝 Semantic Rules & Validations
-
-The compiler performs the following checks during the semantic phase:
-1. **Variable Definition**: Ensures variables are declared before use.
-2. **Scope Isolation**: Variables declared inside blocks (like `for` loops or `if` statements) are inaccessible outside.
-3. **Function Parameters**: Function parameters are automatically injected into the function's local scope.
-4. **Duplicate Prevention**: Prevents multiple declarations of the same identifier within the same scope.
-
----
-**Author:** [Octavio Briguera]  
-**Course:** Compiler Techniques (2026)
+- Java JDK 21 or higher.
+- `antlr-4.13.2-complete.jar` added to the classpath.
+- Smile ML libraries (`smile-core-2.6.0.jar`, `smile-data-2.6.0.jar`, `smile-math-2.6.0.jar`) added to the classpath.
